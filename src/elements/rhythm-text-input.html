@@ -1,0 +1,103 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-stepper/paper-stepper.html">
+<link rel="import" href="../../bower_components/paper-stepper/paper-step.html">
+
+
+<link rel="import" href="./rhythm-display.html">
+
+<dom-module id="rhythm-text-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+      }
+
+      paper-stepper {
+        @apply(--layout-flex);
+      }
+
+      paper-button {
+        color: var(--app-primary-color);
+      }
+
+      paper-input {
+        @apply(--layout-flex);
+        margin-bottom: 16px;
+      }
+    </style>
+
+    <div>
+      <paper-stepper vertical linear on-paper-stepper-completed="submit" id="stepper">
+        <paper-step label="Input any Text you'd like" editable on-paper-step-saved="saved"
+                    on-paper-step-updated="updated" id="textStep">
+          <paper-input value="{{text}}" label="Text used to create the rhythm"
+                       required auto-validate validator="{{_textValidator}}"
+                       error-message="Input at least one character!" id="textInput"></paper-input>
+        </paper-step>
+        <paper-step label="Review the rhythm">
+          <rhythm-display rhythm="[[rhythm]]" heading="[[text]]">
+          </rhythm-display>
+        </paper-step>
+      </paper-stepper>
+    </div>
+
+    <iron-ajax id="useString"
+               url="http://localhost:8081/api/v1/useString"
+               handle-as="json"
+               on-response="_onResponse"
+               last-error="{{lastError}}"
+               debounce-duration="300"></iron-ajax>
+
+  </template>
+
+  <script>
+      Polymer({
+
+          is: 'rhythm-text-input',
+
+          ready: function () {
+              var input = this.$.textInput;
+              this.$.textStep._getValidity = function () {
+                  return input.validate();
+              }
+          },
+
+          properties: {
+              rhythm: {
+                  type: Array,
+                  value: [],
+              },
+              text: {
+                  type: String,
+                  value: ''
+              }
+          },
+          submit: function (e) {
+              this.fire('add-rhythm', {rhythm: this.rhythm, name: this.text});
+              this.fire('nav', '');
+              this.$.stepper.reset();
+              this.rhythm = [];
+              this.text = '';
+          },
+          saved: function (e) {
+              this.$.useString.set('params', {s: this.text});
+              this.$.useString.generateRequest();
+          },
+          updated: function (e) {
+              this.$.useString.set('params', {s: this.text});
+              this.$.useString.generateRequest();
+          },
+          _onResponse: function (e) {
+              if (!e.detail.response) {
+                  return;
+              }
+              this.set('rhythm', e.detail.response);
+          },
+      });
+  </script>
+</dom-module>

@@ -1,0 +1,12 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/rhythm-shelf-app/rhythm-shelf-app.html",
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "includeDependencies": [
+    "bower_components/webcomponentsjs/webcomponents-lite.js"
+  ]
+}

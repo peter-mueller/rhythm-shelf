@@ -1,0 +1,168 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<!-- Iron Elements -->
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
+<!-- Paper Elements -->
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item-body.html">
+
+<!-- App Elements -->
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+
+<!-- Rhythm Elements -->
+<link rel="import" href="../elements/rhythm-display.html">
+<link rel="import" href="../elements/rhythm-text-input.html">
+<link rel="import" href="../elements/login-check.html">
+
+
+<dom-module id="rhythm-shelf-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --app-primary-color: var(--paper-blue-grey-500);
+        --app-primary-dark-color: var(--paper-blue-grey-700)
+        --app-secondary-color: var(--paper-teal-a100);
+
+        --primary-color: var(--app-primary-color);
+        --primary-text-color: black;
+
+
+      }
+
+      app-header {
+        background-color: var(--app-primary-color);
+      }
+
+      app-header-layout {
+        background: var(--app-primary-dark-color) ;
+      }
+
+      @media all and (min-width: 841px)  and (orientation: landscape) {
+        div[main] {
+          margin: 48px 20% 0;
+          @apply(--shadow-elevation-2dp);
+          border-radius: 2px;
+        }
+      }
+
+      paper-item {
+        background-color: white;
+        padding-bottom: 8px;
+        padding-top: 8px;
+      }
+      paper-item + paper-item {
+        border-top: 1px solid #e5e5e5;
+      }
+
+      app-toolbar {
+        @apply(--paper-font-title);
+        color: white;
+      }
+    </style>
+
+    <app-localstorage-document key="rhythm-shelf" data="{{shelf}}"></app-localstorage-document>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+            route="{{route}}"
+            pattern="/:page"
+            data="{{routeData}}"
+            tail="{{subroute}}">
+    </app-route>
+
+    <paper-toast id="toast"></paper-toast>
+
+    <app-header-layout fullbleed has-scrolling-region>
+        <app-header fixed shadow>
+          <app-toolbar>
+            <div main-title>RHYTHM SHELF</div>
+            <paper-button on-tap="logout">LOGOUT</paper-button>
+            <paper-button on-tap="createText">CREATE</paper-button>
+          </app-toolbar>
+        </app-header>
+
+        <div main>
+          <login-check user="{{user}}">
+
+            <iron-pages selected="[[routeData.page]]" attr-for-selected="page" fallback-selection="view404">
+              <div page="text-input">
+                <rhythm-text-input></rhythm-text-input>
+              </div>
+              <div page="">
+                <div role="listbox">
+                <template is="dom-repeat" items="{{shelf}}">
+                  <paper-item>
+                    <paper-item-body two-line>
+                      <div>[[item.name]]</div>
+                      <div secondary>
+                        <rhythm-display rhythm="[[item.rhythm]]"
+                        tabindex="[[index]]"></rhythm-display>
+                      </div>
+                    </paper-item-body>
+
+                  </paper-item>
+                </template>
+                </div>
+
+
+              </div>
+
+              <div page="view404">404</div>
+            </iron-pages>
+
+          </login-check>
+        </div>
+    </app-header-layout>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'rhythm-shelf-app',
+      listeners: {
+        'add-rhythm': 'addRhythm',
+        'show-notification': 'showNotification',
+        'logout': 'logout',
+          'nav': 'navigate'
+      },
+      properties: {
+        shelf: {
+          type: Array,
+          value: []
+        },
+        user: {
+          type: Object,
+          notify: true,
+          value: null
+        },
+      },
+        createText: function(e) {
+          this.fire('nav','text-input');
+        },
+
+      addRhythm: function(e) {
+        this.push('shelf', e.detail)
+      },
+      showNotification: function(e) {
+        this.$.toast.show(e.detail);
+      },
+      logout: function(e) {
+        this.set('user', null);
+      },
+        navigate: function(e) {
+          this.set('routeData.page', e.detail)
+        }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,6 @@
+{
+  "name": "rhythm-shelf",
+  "short_name": "rhythm-shelf",
+  "start_url": "/",
+  "display": "standalone"
+}

@@ -1,0 +1,79 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<dom-module id="login-check">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #login {
+
+        margin-top: 64px;
+
+        @apply(--shadow-elevation-8dp);
+        @apply(--layout-vertical);
+
+        background-color: white;
+      }
+
+      paper-input {
+        @apply(--layout-flex);
+        margin: 0 16px;
+      }
+
+      paper-button {
+        @apply(--layout-self-center);
+        margin-top: 8px;
+        margin-bottom: 16px;
+      }
+    </style>
+
+    <template is="dom-if" if="[[!exists(user)]]">
+      <div id="login">
+        <paper-input label="username" value="{{_username}}" minlength="1"></paper-input>
+        <paper-input type="password" label="password" value="{{_password}}" minlength="1"></paper-input>
+        <paper-button on-tap="login">LOGIN</paper-button>
+      </div>
+    </template>
+    <template is="dom-if" if="[[exists(user)]]" restamp>
+      <content></content>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'login-check',
+
+      properties: {
+        user: {
+          type: Object,
+          notify: true,
+          value: null
+        },
+      },
+
+      exists: function(user) {
+        if (!user) {
+          return false;
+        }
+        return user.name == 'admin' && user.password == 'admin';
+      },
+      login: function(e) {
+        var user = {name: this._username, password: this._password};
+        if (!this.exists(user)) {
+          this.fire('show-notification', 'Failed to login!');
+          return;
+        }
+
+        this.set('user',user );
+      }
+    });
+  </script>
+</dom-module>
