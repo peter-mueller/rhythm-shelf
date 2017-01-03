@@ -1,0 +1,71 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+
+<dom-module id="rhythm-shelf-toolbar">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      app-toolbar {
+        color: white;
+      }
+
+      app-toolbar div[main-title] {
+        @apply(--paper-font-title);
+      }
+
+      #count-selected {
+        @apply(--layout-flex);
+        @apply(--paper-font-body1);
+      }
+
+      #selected {
+        background-color: var(--app-primary-light-color);
+      }
+    </style>
+    <template is="dom-if" if="[[!selected.length]]">
+        <app-toolbar>
+        <div main-title>RHYTHM SHELF</div>
+        <paper-button id="logout" on-tap="logout">LOGOUT</paper-button>
+
+        </app-toolbar>
+    </template>
+
+    <template is="dom-if" if="[[selected.length]]">
+      <app-toolbar id="selected">
+        <paper-icon-button id="cancelSelect" on-tap="cancelSelect" icon="icons:cancel"></paper-icon-button>
+        <span id="count-selected">[[selected.length]] selected!</span>
+        <paper-icon-button id="remove" on-tap="remove" icon="icons:delete"></paper-icon-button>
+        <paper-button id="cancelButton" on-tap="cancelSelect">CANCEL</paper-button>
+      </app-toolbar>
+    </template>
+
+  </template>
+  <script>
+      Polymer({
+          is: 'rhythm-shelf-toolbar',
+          properties: {
+              selected: {
+                  type: Array,
+              }
+          },
+          logout: function () {
+              this.fire('logout');
+          },
+          cancelSelect: function() {
+              this.fire('cancelSelect')
+          },
+          remove: function() {
+              this.fire('remove', this.selected);
+          }
+      });
+  </script>
+</dom-module>
