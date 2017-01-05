@@ -3,6 +3,7 @@
 <!-- Iron Elements -->
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 
+
 <!-- Paper Elements -->
 <link rel="import" href="../../bower_components/paper-styles/shadow.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
@@ -19,7 +20,8 @@
 <link rel="import" href="rhythm-shelf-data-store.html">
 <link rel="import" href="rhythm-shelf-toolbar.html">
 <link rel="import" href="../pages/home-page.html">
-<link rel="import" href="../pages/text-input-page.html">
+<link rel="import" href="../pages/create-page.html">
+<link rel="import" href="../pages/view-v404.html">
 <link rel="import" href="../elements/rhythm-display.html">
 <link rel="import" href="../elements/rhythm-text-input.html">
 <link rel="import" href="../elements/login-check.html">
@@ -38,7 +40,6 @@
         --primary-color: var(--app-primary-color);
         --primary-text-color: black;
 
-
       }
 
       app-header {
@@ -46,7 +47,7 @@
       }
 
       app-header-layout {
-        background: var(--app-primary-dark-color) ;
+        background: var(--app-primary-dark-color);
       }
 
       @media all and (min-width: 841px)  and (orientation: landscape) {
@@ -58,91 +59,97 @@
     </style>
 
     <rhythm-shelf-data-store shelf="{{shelf}}"></rhythm-shelf-data-store>
-    <rhythm-shelf-router route="{{route}}"></rhythm-shelf-router>
-    <app-route
-            route="{{route}}"
-            pattern="/:page"
-            data="{{routeData}}"
-            tail="{{subroute}}">
-    </app-route>
 
     <paper-toast id="toast"></paper-toast>
 
     <app-header-layout fullbleed has-scrolling-region>
-        <app-header fixed shadow>
-          <rhythm-shelf-toolbar selected="[[selected]]"></rhythm-shelf-toolbar>
-        </app-header>
+      <app-header fixed shadow>
+        <rhythm-shelf-toolbar selected="[[selected]]"></rhythm-shelf-toolbar>
+      </app-header>
 
-        <div main>
-          <!--login-check user="{{user}}"-->
+      <div main>
+        <login-check user="{{user}}">
 
-            <iron-pages selected="[[routeData.page]]" attr-for-selected="page" fallback-selection="view404">
-              <div page="text-input">
-                <rhythm-text-input></rhythm-text-input>
-              </div>
-              <div page="">
-                <home-page id="homePage" shelf="[[shelf]]" selected="{{selected}}"></home-page>
-              </div>
-              <div page="view404">404</div>
-            </iron-pages>
+        <rhythm-shelf-router route="{{route}}"></rhythm-shelf-router>
+        <app-route route="{{route}}" pattern="/:page" data="{{data}}"></app-route>
+        <app-route route="{{route}}" pattern="/create" tail="{{inputTail}}"></app-route>
+        <iron-pages selected="[[data.page]]" attr-for-selected="page" fallback-selection="view404">
+            <create-page route="{{inputTail}}" page="create"></create-page>
+            <home-page id="homePage" shelf="[[shelf]]" selected="{{selected}}" page=""></home-page>
+          <view-v404 page="view404"></view-v404>
+        </iron-pages>
 
-          <!--/login-check-->
-        </div>
+        </login-check>
+      </div>
     </app-header-layout>
   </template>
 
   <script>
-    Polymer({
+      Polymer({
 
-      is: 'rhythm-shelf-app',
-      listeners: {
-        'add-rhythm': 'addRhythm',
-        'show-notification': 'showNotification',
-        'logout': 'logout',
-         'create': 'create',
-          'cancelSelect': 'cancelSelect',
-          'remove': 'remove'
-      },
-      properties: {
-        shelf: {
-          type: Array,
-          value: []
-        },
-        user: {
-          type: Object,
-          notify: true,
-          value: null
-        },
-      },
-        create: function() {
-          this.navigate('text-input');
-        },
-        cancelSelect: function() {
-          this.$.homePage.clearSelection();
-        },
-        remove: function(e) {
-          this.cancelSelect();
-          const outer = this;
-          e.detail
-            .sort(function(a, b){return b-a})
-            .forEach(function(index) {
-              outer.splice('shelf', index, 1);
-          });
-        },
+          is: 'rhythm-shelf-app',
+          listeners: {
+              'add-rhythm': 'addRhythm',
+              'show-notification': 'showNotification',
+              'logout': 'logout',
+              'create': 'create',
+              'cancelSelect': 'cancelSelect',
+              'remove': 'remove',
+              'nav': '_nav'
+          },
+          properties: {
+              route: {
+                  type: Object,
+              },
+              shelf: {
+                  type: Array,
+                  value: []
+              },
+              user: {
+                  type: Object,
+                  notify: true,
+                  value: null
+              },
+          },
+          create: function (e) {
+              if (e) {e.preventDefault();}
+              this.navigate('create');
+          },
+          selectAll: function(e) {
+              if (e) {e.preventDefault();}
+              this.$.homePage.selectAll();
+          },
+          cancelSelect: function () {
+              this.$.homePage.clearSelection();
+          },
+          remove: function (e) {
+              this.cancelSelect();
+              const outer = this;
+              e.detail
+                  .sort(function (a, b) {
+                      return b - a
+                  })
+                  .forEach(function (index) {
+                      outer.splice('shelf', index, 1);
+                  });
+          },
 
-      addRhythm: function(e) {
-        this.push('shelf', e.detail);
-          this.navigate('');
-      },
-      showNotification: function(e) {
-        this.$.toast.show(e.detail);
-      },
-      logout: function() {
-        this.set('user', null);
-      },
-        navigate: function(page) {
-          this.set('routeData.page', page)
-        }
-    });
+          addRhythm: function (e) {
+              this.push('shelf', e.detail);
+              this.navigate('');
+          },
+          showNotification: function (e) {
+              this.$.toast.show(e.detail);
+          },
+          logout: function () {
+              this.set('user', null);
+          },
+          _nav: function (e) {
+              this.navigate(e.detail);
+          },
+          navigate: function (page) {
+              this.set('data.page', page)
+          }
+      });
   </script>
 </dom-module>

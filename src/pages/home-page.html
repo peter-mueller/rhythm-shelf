@@ -8,11 +8,10 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-
-
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="../elements/rhythm-display.html">
+<link rel="import" href="../elements/emtpy-placeholder.html">
 
 <dom-module id="home-page">
   <template>
@@ -35,57 +34,6 @@
         border-radius: 2px;
         @apply(--shadow-elevation-2dp);
       }
-
-      #container {
-        @apply(--layout-horizontal);
-        @apply(--layout-center-center);
-        @apply(--layout-fit);
-      }
-      .circle {
-        background-color:var(--app-primary-color);;
-        margin: 12px;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-      }
-      iron-icon {
-        color:var(--app-primary-color);;
-        margin: 12px;
-        width: 32px;
-        height: 32px;
-      }
-
-      #c1 {
-        animation-name: jump;
-        animation-duration: 2000ms;
-        animation-iteration-count: infinite;
-      }
-
-      #c3 {
-        animation-name: jump;
-        animation-duration: 2000ms;
-        animation-delay: 1000ms;
-        animation-iteration-count: infinite;
-      }
-      #c4 {
-        animation-name: jump;
-        animation-duration: 2000ms;
-        animation-delay: 1500ms;
-        animation-iteration-count: infinite;
-      }
-
-      @keyframes jump {
-        25% {
-          transform: scale(1);
-          background-color: var(--app-primary-color);
-        }
-        0% {
-          animation-timing-function: ease-out;
-          background-color: var(--app-secondary-color);
-          transform: scale(1.2);
-        }
-      }
-
       paper-icon-item div {
         @apply(--layout-flex);
 
@@ -107,26 +55,18 @@
       }
     </style>
     <template is="dom-if" if="[[!shelf.length]]" restamp>
-      <div id="container">
-        <div class="circle" id="c1"></div>
-        <iron-icon icon="icons:more-horiz"></iron-icon>
-        <div class="circle" id="c3"></div>
-        <div class="circle" id="c4"></div>
-      </div>
+<emtpy-placeholder></emtpy-placeholder>
     </template>
     <array-selector id="selector" items="{{shelf}}" selected="{{selected}}" multi></array-selector>
 
      <template id="list" is="dom-repeat" items="[[shelf]]">
-        <paper-icon-item >
-          <paper-checkbox item-icon checked="[[_isSelected(index, selected)]]" on-change="_selectionChanged"></paper-checkbox>
+        <paper-icon-item>
+          <paper-checkbox item-icon checked="[[_isSelected(index, selected.*)]]" on-change="_selectionChanged"></paper-checkbox>
              <div>[[item.name]]</div>
             <rhythm-display rhythm="[[item.rhythm]]"
                               tabindex="[[index]]"></rhythm-display>
         </paper-icon-item>
      </template>
-       <template is="dom-repeat" items="[[selected]]">
-         <div>[[item.name]]</div>
-       </template>
 
     <paper-fab icon="add" id="create" on-tap="create"></paper-fab>
 
@@ -145,6 +85,13 @@
           },
           create: function() {
             this.fire('create');
+          },
+          selectAll: function() {
+              const outer = this;
+              this.shelf.forEach(function (value, index) {
+                  outer.$.selector.select(index);
+              });
+
           },
           clearSelection: function() {
               this.$.selector.clearSelection();

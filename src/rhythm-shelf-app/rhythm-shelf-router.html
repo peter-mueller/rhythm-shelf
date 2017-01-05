@@ -4,7 +4,7 @@
 
 <dom-module id="rhythm-shelf-router">
   <template>
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}" use-hash-as-path></app-location>
   </template>
   <script>
       Polymer({
@@ -15,6 +15,15 @@
                   notify: true
               }
           },
+          observers: [
+              '_onPath(route.path)'
+          ],
+          _onPath: function() {
+              if (!this.route.path) {
+                  this.set('route.path', '/')
+              }
+          },
+
       });
   </script>
 </dom-module>

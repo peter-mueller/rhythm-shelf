@@ -32,11 +32,12 @@
       }
     </style>
     <template is="dom-if" if="[[!selected.length]]">
-        <app-toolbar>
+      <app-toolbar>
+        <paper-icon-button icon="icons:home" on-tap="home" id="home"></paper-icon-button>
         <div main-title>RHYTHM SHELF</div>
         <paper-button id="logout" on-tap="logout">LOGOUT</paper-button>
 
-        </app-toolbar>
+      </app-toolbar>
     </template>
 
     <template is="dom-if" if="[[selected.length]]">
@@ -57,13 +58,16 @@
                   type: Array,
               }
           },
+          home: function () {
+              this.fire('nav', '');
+          },
           logout: function () {
               this.fire('logout');
           },
-          cancelSelect: function() {
+          cancelSelect: function () {
               this.fire('cancelSelect')
           },
-          remove: function() {
+          remove: function () {
               this.fire('remove', this.selected);
           }
       });

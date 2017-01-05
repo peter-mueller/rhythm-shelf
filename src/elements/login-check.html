@@ -4,6 +4,8 @@
 
 <link rel="import" href="../../bower_components/paper-styles/shadow.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 
 <dom-module id="login-check">
   <template>
@@ -34,6 +36,9 @@
       }
     </style>
 
+    <app-localstorage-document key="auth" data="{{user}}"></app-localstorage-document>
+
+
     <template is="dom-if" if="[[!exists(user)]]">
       <div id="login">
         <paper-input label="username" value="{{_username}}" minlength="1"></paper-input>
@@ -47,33 +52,37 @@
   </template>
 
   <script>
-    Polymer({
+      Polymer({
 
-      is: 'login-check',
+          is: 'login-check',
+          behaviors: [
+              Polymer.IronA11yKeysBehavior,
+          ],
 
-      properties: {
-        user: {
-          type: Object,
-          notify: true,
-          value: null,
-        },
-      },
-
-      exists: function(user) {
-        if (!user) {
-          return false;
-        }
-        return user.name == 'admin' && user.password == 'admin';
-      },
-      login: function(e) {
-        var user = {name: this._username, password: this._password};
-        if (!this.exists(user)) {
-          this.fire('show-notification', 'Failed to login!');
-          return;
-        }
-
-        this.set('user',user );
-      }
-    });
+          properties: {
+              user: {
+                  type: Object,
+                  notify: true,
+                  value: null
+              },
+          },
+          keyBindings: {
+              'enter': 'login'
+          },
+          exists: function (user) {
+              if (!user) {
+                  return false;
+              }
+              return user.name == 'admin' && user.password == 'admin';
+          },
+          login: function (e) {
+              var user = {name: this._username, password: this._password};
+              if (!this.exists(user)) {
+                  this.fire('show-notification', 'Failed to login!');
+                  return;
+              }
+              this.set('user', user);
+          }
+      });
   </script>
 </dom-module>

@@ -1,10 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/paper-stepper/paper-stepper.html">
-<link rel="import" href="../../bower_components/paper-stepper/paper-step.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
 
 
 <link rel="import" href="./rhythm-display.html">
@@ -15,39 +17,70 @@
       :host {
         display: block;
         @apply(--layout-vertical);
+
+        background-color: white;
+        border-radius: 2px;
+        @apply(--shadow-elevation-2dp);
       }
 
-      paper-stepper {
-        @apply(--layout-flex);
-      }
-
-      paper-button {
+      #save {
         color: var(--app-primary-color);
       }
 
+      .space {
+        @apply(--layout-flex);
+      }
       paper-input {
         @apply(--layout-flex);
-        margin-bottom: 16px;
+        margin: 8px;
+      }
+
+      h1 {
+        @apply(--paper-font-title);
+        margin: 0;
+      }
+
+      p {
+        @apply(--paper-font-body1);
+        margin: 0;
+      }
+
+      #title {
+        padding: 16px 16px;
+      }
+
+      rhythm-display {
+        margin: 16px;
+      }
+
+      #controls {
+        @apply(--layout-horizontal);
+        margin: 8px;
       }
     </style>
 
-    <div>
-      <paper-stepper vertical linear on-paper-stepper-completed="submit" id="stepper">
-        <paper-step label="Input any Text you'd like" editable on-paper-step-saved="saved"
-                    on-paper-step-updated="updated" id="textStep">
-          <paper-input value="{{text}}" label="Text used to create the rhythm"
-                       required auto-validate validator="{{_textValidator}}"
-                       error-message="Input at least one character!" id="textInput"></paper-input>
-        </paper-step>
-        <paper-step label="Review the rhythm">
-          <rhythm-display rhythm="[[rhythm]]" heading="[[text]]">
-          </rhythm-display>
-        </paper-step>
-      </paper-stepper>
+    <div id="title">
+      <h1>Create a rhythm by text</h1>
+      <p>The characters of the text will be transferred into beats.</p>
     </div>
 
+    <app-route route="{{route}}" pattern="/:text" data="{{data}}"></app-route>
+    <paper-input value="{{data.text}}" label="Text used to create the rhythm"
+                 required auto-validate
+                 error-message="Input at least one character!" id="textInput"></paper-input>
+
+
+    <rhythm-display rhythm="[[rhythm]]">
+    </rhythm-display>
+
+    <span id="controls">
+      <paper-button on-tap="back" id="back">BACK</paper-button>
+      <span class="space"></span>
+      <paper-button disabled="[[!rhythm.length]]" on-tap="submit" id="save">SAVE</paper-button>
+    </span>
+
     <iron-ajax id="useString"
-               url="http://localhost:8081/api/v1/useString"
+               url="/api/v1/useString"
                handle-as="json"
                on-response="_onResponse"
                last-error="{{lastError}}"
@@ -59,37 +92,37 @@
       Polymer({
 
           is: 'rhythm-text-input',
-
-          ready: function () {
-              var input = this.$.textInput;
-              this.$.textStep._getValidity = function () {
-                  return input.validate();
-              }
-          },
-
           properties: {
               rhythm: {
                   type: Array,
                   value: [],
               },
-              text: {
-                  type: String,
-                  value: ''
+              route: {
+                  type: Object,
+                  notify: true
               }
           },
+          observers: [
+              '_onPath(route.path)',
+              '_onText(data.text)'
+          ],
+          _onPath: function(e) {
+              if (!this.route.path) {
+                  this.set('route.path', "/");
+              }
+
+          },
+          back: function(e) {
+              this.fire('back')
+          },
           submit: function (e) {
-              this.fire('add-rhythm', {rhythm: this.rhythm, name: this.text});
+              this.fire('add-rhythm', {rhythm: this.rhythm, name: this.data.text});
               this.fire('nav', '');
-              this.$.stepper.reset();
               this.rhythm = [];
               this.text = '';
           },
-          saved: function (e) {
-              this.$.useString.set('params', {s: this.text});
-              this.$.useString.generateRequest();
-          },
-          updated: function (e) {
-              this.$.useString.set('params', {s: this.text});
+          _onText: function (e) {
+              this.$.useString.set('params', {s: this.data.text});
               this.$.useString.generateRequest();
           },
           _onResponse: function (e) {

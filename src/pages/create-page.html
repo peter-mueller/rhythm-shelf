@@ -1,0 +1,76 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
+
+
+<link rel="import" href="../elements/input-selector.html">
+<link rel="import" href="view-v404.html">
+
+<dom-module id="create-page">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+      }
+    </style>
+
+    <app-route route="{{route}}" pattern="/:page" data="{{data}}"></app-route>
+    <app-route route="{{route}}" pattern="/text" tail="{{textTail}}"></app-route>
+
+    <iron-pages selected="[[data.page]]" attr-for-selected="page" fallback-selection="v404">
+      <input-selector on-select-type="selectType" page=""></input-selector>
+
+      <rhythm-text-input page="text" route="{{textTail}}"></rhythm-text-input>
+
+      <view-v404 page="v404"></view-v404>
+
+    </iron-pages>
+
+  </template>
+  <script>
+      Polymer({
+          is: 'create-page',
+          listeners: {
+              'back': 'back',
+              'cancel': 'cancel'
+          },
+          properties: {
+              route: {
+                  type: Object,
+                  notify: true,
+              },
+              data: {
+                  type: Object
+              },
+
+          },
+          observers: [
+              '_onPath(route.path)'
+          ],
+          back: function(e) {
+              window.history.back();
+          },
+          cancel: function(e) {
+              this.fire('nav','');
+          },
+          selectType: function(e) {
+              this.set('data.page',e.detail);
+          },
+          _onPath: function() {
+                if (!this.route.path) {
+                    this.set('route.path', '/');
+                }
+          },
+      });
+  </script>
+</dom-module>
