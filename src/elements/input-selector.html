@@ -7,81 +7,81 @@
 
 <dom-module id="input-selector">
   <template>
-    <style>
-      :host {
-        @apply(--layout-vertical);
+  <style>
+  :host {
+    @apply(--layout-vertical);
 
-        background-color: white;
-        border-radius: 2px;
-        @apply(--shadow-elevation-2dp);
-      }
+    background-color: white;
+    border-radius: 2px;
+    @apply(--shadow-elevation-2dp);
+  }
 
-      #continue {
-        color: var(--app-primary-color);
-      }
+  #continue {
+    color: var(--app-primary-color);
+  }
 
-      paper-radio-group {
-        @apply(--layout-vertical);
-        margin: 8px;
-      }
+  paper-radio-group {
+    @apply(--layout-vertical);
+    margin: 8px;
+  }
 
-      h1 {
-        @apply(--paper-font-title);
-        margin: 0;
-      }
-      p {
-        @apply(--paper-font-body1);
-        margin: 0;
-      }
-      #title {
-        margin: 16px;
-      }
+  h1 {
+    @apply(--paper-font-title);
+    margin: 0;
+  }
+  p {
+    @apply(--paper-font-body1);
+    margin: 0;
+  }
+  #title {
+    margin: 16px;
+  }
 
-      #controls {
-        @apply(--layout-horizontal);
-        margin: 8px;
-      }
-      .spacer {
-        @apply(--layout-flex);
-      }
+  #controls {
+    @apply(--layout-horizontal);
+    margin: 8px;
+  }
+  .spacer {
+    @apply(--layout-flex);
+  }
 
-    </style>
-    <div id="title">
-      <h1>Select a method</h1>
-      <p>
-        Select the type for how to input the rhyhtm.
-      </p>
-    </div>
+  </style>
+  <div id="title">
+    <h1>Select a method</h1>
+    <p>
+      Select the type for how to input the rhyhtm.
+    </p>
+  </div>
 
-    <paper-radio-group selected="{{selected}}">
-      <paper-radio-button name="text">Use text to create a rhythm</paper-radio-button>
-      <paper-radio-button name="bjorklund" disabled>Generate an even distributed rhythm (Bjorklund algorithm)</paper-radio-button>
-      <paper-radio-button name="random" disabled>Make a random rhyhtm</paper-radio-button>
-    </paper-radio-group>
+  <paper-radio-group selected="{{selected}}">
+    <paper-radio-button name="text">Use text to create a rhythm</paper-radio-button>
+    <paper-radio-button name="bjorklund" disabled>Generate an even distributed rhythm (Bjorklund algorithm)</paper-radio-button>
+    <paper-radio-button name="random">Make a random rhythm</paper-radio-button>
+  </paper-radio-group>
 
-    <span id="controls">
+  <span id="controls">
     <paper-button on-tap="cancel" id="cancel">CANCEL</paper-button>
-      <span class="spacer"></span>
+    <span class="spacer"></span>
     <paper-button on-tap="selectType" disabled="[[!selected]]" id="continue">CONTINUE</paper-button>
-    </span>
-  </template>
-  <script>
-      Polymer({
-          is: 'input-selector',
-          properties: {
-              selected: {
-                  type: String,
-                  notify: true,
-                  value: ''
-              }
-          },
-          cancel: function(e) {
-              this.fire('cancel');
-          },
+  </span>
+</template>
+<script>
+Polymer({
+  is: 'input-selector',
+  properties: {
+    selected: {
+      type: String,
+      notify: true,
+      value: ''
+    }
+  },
+  cancel: function(e) {
+    this.fire('cancel');
+  },
 
-          selectType: function(e) {
-              this.fire('select-type', this.selected)
-          }
-      });
-  </script>
+  selectType: function(e) {
+    this.fire('select-type', this.selected)
+  }
+});
+</script>
 </dom-module>

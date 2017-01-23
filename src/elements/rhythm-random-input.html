@@ -1,0 +1,151 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+
+<dom-module id="rhythm-random-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+
+        background-color: white;
+        border-radius: 2px;
+        @apply(--shadow-elevation-2dp);
+      }
+
+      #save {
+        color: var(--app-primary-color);
+      }
+
+      .space {
+        @apply(--layout-flex);
+      }
+      paper-input {
+        padding: 0 8px;
+      }
+      #lengthLabel {
+        padding: 8px 8px 0;
+        color: #737373;
+        @apply(--paper-font-caption);
+      }
+      #lengthInput {
+        padding: 0 8px;
+        @apply(--layout-horizontal);
+      }
+      paper-slider {
+        @apply(--layout-flex);
+        --paper-slider-active-color: var(--app-primary-color);
+        --paper-slider-knob-color	: var(--app-primary-color);
+      }
+
+      h1 {
+        @apply(--paper-font-title);
+        margin: 0;
+      }
+
+      p {
+        @apply(--paper-font-body1);
+        margin: 0;
+      }
+
+      #title {
+        padding: 16px 16px;
+      }
+
+      rhythm-display {
+        margin: 16px;
+      }
+
+      #controls {
+        @apply(--layout-horizontal);
+        margin: 8px;
+      }
+    </style>
+
+    <div id="title">
+      <h1>Create a rhythm by text</h1>
+      <p>The characters of the text will be transferred into beats.</p>
+    </div>
+
+    <app-route route="{{route}}" pattern="/:length" data="{{data}}"></app-route>
+    <paper-input value="{{name}}" label="Name of the rhythm"
+                 required auto-validate type="text" minlength="1"
+                 error-message="Length must be greater than one!" id="nameInput"></paper-input>
+
+    <span id="lengthLabel">Length of the rhythm</span>
+    <div id="lengthInput">
+      <paper-slider snaps max-markers="32" min="1" max="32" value="{{data.length}}" editable></paper-slider>
+    </div>
+    <paper-button on-tap="_onLength" id="random">REROLL</paper-button>
+
+
+    <rhythm-display rhythm="[[rhythm]]">
+    </rhythm-display>
+
+    <span id="controls">
+      <paper-button on-tap="back" id="back">BACK</paper-button>
+      <span class="space"></span>
+      <paper-button disabled="[[!rhythm.length]]" on-tap="submit" id="save">SAVE</paper-button>
+    </span>
+
+    <iron-ajax id="useString"
+               url="/api/v1/random"
+               handle-as="json"
+               on-response="_onResponse"
+               last-error="{{lastError}}"
+               debounce-duration="300"></iron-ajax>
+    
+  </template>
+  <script>
+      Polymer({
+          is: 'rhythm-random-input',
+          properties: {
+              rhythm: {
+                  type: Array,
+                  value: [],
+              },
+              route: {
+                  type: Object,
+                  notify: true
+              }
+          },
+          observers: [
+              '_onPath(route.path)',
+              '_onLength(data.length)'
+          ],
+          _onPath: function(e) {
+              if (!this.route.path) {
+                  this.set('route.path', "/1");
+              }
+          },
+          back: function(e) {
+              this.fire('back')
+          },
+          submit: function (e) {
+              this.fire('add-rhythm', {rhythm: this.rhythm, name: this.name});
+              this.fire('nav', '');
+              this.rhythm = [];
+              this.name = 'Random Rhythm';
+          },
+          _onLength: function (e) {
+              this.$.useString.set('params', {l: this.data.length});
+              this.$.useString.generateRequest();
+          },
+          _onResponse: function (e) {
+              if (!e.detail.response) {
+                  return;
+              }
+              this.set('rhythm', e.detail.response);
+          },
+      });
+  </script>
+</dom-module>

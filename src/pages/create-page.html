@@ -13,6 +13,8 @@
 
 
 <link rel="import" href="../elements/input-selector.html">
+<link rel="import" href="../elements/rhythm-text-input.html">
+<link rel="import" href="../elements/rhythm-random-input.html">
 <link rel="import" href="view-v404.html">
 
 <dom-module id="create-page">
@@ -26,11 +28,13 @@
 
     <app-route route="{{route}}" pattern="/:page" data="{{data}}"></app-route>
     <app-route route="{{route}}" pattern="/text" tail="{{textTail}}"></app-route>
+    <app-route route="{{route}}" pattern="/random" tail="{{randomTail}}"></app-route>
 
     <iron-pages selected="[[data.page]]" attr-for-selected="page" fallback-selection="v404">
       <input-selector on-select-type="selectType" page=""></input-selector>
 
       <rhythm-text-input page="text" route="{{textTail}}"></rhythm-text-input>
+      <rhythm-random-input page="random" route="{{randomTail}}"></rhythm-random-input>
 
       <view-v404 page="v404"></view-v404>
 
